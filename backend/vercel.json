@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "functions": {
+    "server.js": {
+      "maxDuration": 60,
+      "includeFiles": "**/"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/server.js"
+    }
+  ]
+}
