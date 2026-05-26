@@ -11,6 +11,16 @@ import { LocalVectorStore, chunkText, ChromaClient, queryGroqLLM } from './rag-e
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+console.log("[DEBUG] __dirname:", __dirname);
+const documentsDir = path.join(__dirname, 'documents');
+console.log("[DEBUG] documentsDir:", documentsDir);
+if (fs.existsSync(documentsDir)) {
+  console.log("[DEBUG] Documents found:");
+  console.log(fs.readdirSync(documentsDir));
+} else {
+  console.log("[DEBUG] Documents directory missing");
+}
+
 dotenv.config();
 
 const app = express();
@@ -26,16 +36,20 @@ app.use(express.urlencoded({
   limit: "25mb"
 }));
 
-// Helper: Scan parent directory dynamically for all PDF files
+// Helper: Scan documents directory dynamically for all PDF files
 function getPdfFiles() {
-  const parentDir = path.join(__dirname, '..');
+  const documentsDir = path.join(__dirname, 'documents');
   try {
-    const files = fs.readdirSync(parentDir);
+    if (!fs.existsSync(documentsDir)) {
+      console.error("[PDF ERROR] Documents directory missing");
+      return [];
+    }
+    const files = fs.readdirSync(documentsDir);
     return files
       .filter(f => f.toLowerCase().endsWith('.pdf'))
       .map(f => ({
         name: f,
-        path: path.join(parentDir, f)
+        path: path.join(documentsDir, f)
       }));
   } catch (e) {
     console.error(`[PDF Scan Error]: ${e.message}`);
